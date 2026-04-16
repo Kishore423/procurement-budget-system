@@ -110,7 +110,8 @@ Workflow rule summary:
 - If `total_amount < 10000`: Department Head -> Budget Check -> Fully Approved.
 - If `total_amount >= 10000`: Department Head -> Finance Manager -> Budget Check -> Fully Approved.
 - The budget check happens before final approval in both paths.
-- If the budget is insufficient, the request moves to `OVER_BUDGET_HOLD` instead of `APPROVED`.
+- A PR enters `APPROVED` only after all required approvals are complete and the budget check passes. Budget is deducted only at that point.
+- If approving the PR would make the remaining budget negative, the system blocks final approval and sets the PR to `OVER_BUDGET_HOLD`.
 
 ## PR State Machine
 ```mermaid
@@ -156,7 +157,7 @@ Every submitted request goes first to the Department Head. This keeps department
 Finance Manager review is only required when `total_amount >= 10000`. In the schema, this step is performed by users with the `FINANCE` role.
 
 ### 5. Budget Control and Monitoring
-Before final approval, the system checks remaining budget. If enough budget exists, the request becomes `APPROVED`. If not, the request moves to `OVER_BUDGET_HOLD`.
+Before final approval, the system checks remaining budget. A PR enters `APPROVED` only after all required approvals are complete and this check passes. If approval would make the remaining budget negative, final approval is blocked and the request moves to `OVER_BUDGET_HOLD`.
 
 ## Implementation in Low-Code Terms
 The solution can be implemented with standard low-code building blocks instead of custom-heavy code.
@@ -171,7 +172,7 @@ The solution can be implemented with standard low-code building blocks instead o
 ### Budget Calculation Formula
 `Remaining Budget = Initial Budget - SUM(total_amount of APPROVED PRs)`
 
-Only `APPROVED` procurement requests reduce the remaining budget. Requests in `DRAFT`, `PENDING_HEAD`, `PENDING_FINANCE`, `OVER_BUDGET_HOLD`, or `REJECTED` do not reduce the budget.
+Only `APPROVED` procurement requests reduce the remaining budget. Budget is deducted only when a PR enters `APPROVED`, after all required approvals and the final budget check have passed.
 
 ### Approval Rules
 1. Admin sets the initial budget for a department.
@@ -182,9 +183,9 @@ Only `APPROVED` procurement requests reduce the remaining budget. Requests in `D
 6. If `total_amount < 10000`, the request moves from Department Head review to the budget check.
 7. If `total_amount >= 10000`, Finance Manager approval is required before the budget check.
 8. The budget check always happens before final approval.
-9. If budget is sufficient, the request status becomes `APPROVED`.
-10. If budget is insufficient, the request status becomes `OVER_BUDGET_HOLD`.
-11. Budget is reduced only after the request is fully approved.
+9. If all required approvals are complete and budget is sufficient, the request enters `APPROVED`.
+10. Budget is deducted only when the request enters `APPROVED`.
+11. If approving the request would make the remaining budget negative, final approval is blocked and the request becomes `OVER_BUDGET_HOLD`.
 
 ## Wireframes
 ### Dashboard Screen
@@ -281,8 +282,8 @@ The seed data supports three main demo cases and one pending queue example.
 2. Case 1: Open `PR-2026-001` with total `4500.00`. Explain that this is the `<10000` scenario, so it follows `Department Head -> Budget Check -> APPROVED`.
 3. Point out that Finance Manager approval is not needed for `PR-2026-001` because the total is below `10000`.
 4. Case 2: Open `PR-2026-002` with total `12500.00`. Explain that this is the `>=10000` scenario, so it follows `Department Head -> Finance Manager -> Budget Check -> APPROVED`.
-5. Emphasize that the budget is reduced only after full approval, which is why the approved spend is based on `PR-2026-001` and `PR-2026-002` only.
-6. Case 3: Open `PR-2026-003` with total `40000.00`. Explain that it passed Department Head approval and Finance Manager approval, but the final budget check failed because the remaining budget was only `33000.00`.
+5. Emphasize that budget is deducted only when a PR enters `APPROVED`, which is why approved spend is based on `PR-2026-001` and `PR-2026-002` only.
+6. Case 3: Open `PR-2026-003` with total `40000.00`. Explain that it passed Department Head approval and Finance Manager approval, but the system blocked final approval because approving it would push the remaining budget below zero.
 7. Show that `PR-2026-003` is therefore placed in `OVER_BUDGET_HOLD` instead of `APPROVED`.
 8. Optional queue example: Open `PR-2026-004` to show a request still waiting in `PENDING_HEAD`.
 9. Return to the dashboard and explain how the approved, pending, and over-budget figures match the seed data and workflow design.
