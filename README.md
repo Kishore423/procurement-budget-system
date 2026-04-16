@@ -23,7 +23,7 @@ This repository is a final technical test submission for an Integrated Procureme
 
 ### Demo / Video
 - Demo walkthrough: Included in this README.
-- Covered scenarios:
+Covered scenarios:
 - `PR-2026-001` for the `<10000` approval path.
 - `PR-2026-002` for the `>=10000` approval path.
 - `PR-2026-003` for the over-budget hold case.
@@ -359,3 +359,4 @@ The seed data supports three main demo cases and one pending queue example.
 This design works because it matches the technical test requirements directly without adding unnecessary complexity. The ERD is simple, the workflow makes the two approval paths obvious, the state machine uses exact system status values, and the budget formula is explicit.
 
 The README is the source of truth for this repository. The SQL files in `/sql` intentionally mirror the same entities, statuses, and approval logic.
+", "encoding": "utf-8", "sha": "efe731790b9a65b9a88c79cd1cc4b1f2de1a2a54", "display_url": "https://github.com/Kishore423/procurement-budget-system/blob/codex/interview-ready-submission/README.md", "display_title": "README.md"}
