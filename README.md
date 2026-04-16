@@ -53,7 +53,7 @@ erDiagram
         decimal total_amount
         int head_approved_by FK
         datetime head_approved_at
-        datetime finance_approved_by FK
+        int finance_approved_by FK
         datetime finance_approved_at
         datetime submitted_at
     }
@@ -140,6 +140,15 @@ Finance only reviews requests where `total_amount >= 10000`. This keeps the flow
 
 ### 5. Budget Control and Monitoring
 Before final approval, the system checks remaining budget. If enough budget exists, the request is approved. If not, the request moves to `OVER_BUDGET_HOLD`.
+
+## Implementation in Low-Code Terms
+The solution can be implemented with standard low-code building blocks instead of custom-heavy code.
+
+- Data layer: the five tables store master data, request headers, and request items.
+- Form layer: one form captures the request header and one repeating grid captures line items.
+- Rule layer: one rule calculates `total_amount`, one rule routes to Finance when the total is `>= 10000`, and one rule checks budget before final approval.
+- Approval layer: role-based actions allow Department Head and Finance users to approve or reject.
+- Reporting layer: dashboard cards and filtered lists show budget usage and approval queues.
 
 ## Key Business Logic
 1. Admin sets the initial budget for a department.
