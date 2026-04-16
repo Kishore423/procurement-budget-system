@@ -3,6 +3,32 @@
 ## Overview
 This repository is a final technical test submission for an Integrated Procurement and Budget Control System designed with a low-code mindset. The solution keeps the data model small, the approval flow easy to explain, and the budget control logic explicit so it is suitable for both implementation and interview presentation.
 
+## Repository Structure
+- `README.md`: Main Functional Specification Document. It contains the system overview, assumptions, diagrams, workflow, business logic, wireframe descriptions, demo walkthrough, presentation script, and quick answer lines.
+- `sql/schema.sql`: Database schema for the proof of concept. The tables, relationships, and status values are aligned with the ERD and state model in the README.
+- `sql/seed.sql`: Sample data for the demo scenarios. It supports the walkthrough examples for `PR-2026-001`, `PR-2026-002`, `PR-2026-003`, and `PR-2026-004`.
+
+## Technical Test Coverage
+### FSD (Functional Specification Document)
+- ERD: Included in this README as a Mermaid diagram.
+- Workflow Diagram: Included in this README as a Mermaid diagram.
+- Business Logic: Explained in this README with approval rules, budget rules, and status behavior.
+- Wireframes: Described in this README in simple business-friendly terms.
+
+### POC (Proof of Concept)
+- Data model: Implemented in `sql/schema.sql`.
+- Relationships: Match the ERD in the README.
+- Calculation logic: Supports `total_amount` on the request header and the remaining budget formula based on approved requests.
+- Conditional workflow: Supports the two approval paths for `<10000` and `>=10000` using the request header total, workflow rules, and status model.
+
+### Demo / Video
+- Demo walkthrough: Included in this README.
+- Covered scenarios:
+- `PR-2026-001` for the `<10000` approval path.
+- `PR-2026-002` for the `>=10000` approval path.
+- `PR-2026-003` for the over-budget hold case.
+- `PR-2026-004` for the pending Department Head case.
+
 ## Assumptions
 - The accessible repository originally contained only a placeholder `README.md`, so the submission branch holds the actual deliverables.
 - One department has one active budget record per fiscal year.
