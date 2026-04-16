@@ -288,6 +288,47 @@ The seed data supports three main demo cases and one pending queue example.
 8. Optional queue example: Open `PR-2026-004` to show a request still waiting in `PENDING_HEAD`.
 9. Return to the dashboard and explain how the approved, pending, and over-budget figures match the seed data and workflow design.
 
+## Presentation Script
+### 1. Introduction
+"Hi, in this video I’m presenting my Integrated Procurement and Budget Control System. The purpose of this solution is to help a department control purchasing requests while making sure spending stays within budget. The system solves two business problems at the same time: approval routing and budget control."
+
+### 2. ERD Explanation
+"I’ll start with the data model. The main entities are departments, users, department budgets, procurement requests, and procurement request items. The most important structure here is the master-detail design. `procurement_requests` is the header or master table, and it stores one request record with the requester, department, status, approval fields, and total amount. `procurement_request_items` is the detail table, and it stores the line items under that request. This keeps the design simple and very suitable for a low-code platform."
+
+### 3. Workflow Explanation
+"Next, I’ll explain the workflow. Every request starts with the Department Head. After that, the process splits into two paths. If the total amount is below 10,000, the request goes from Department Head review straight to the budget check. If the total amount is 10,000 or more, it must go to the Finance Manager first, and then to the budget check. Budget is deducted only after final approval, not before. So a request only affects the remaining budget when it enters the `APPROVED` state. If approving the request would make the remaining budget negative, the system blocks final approval and moves the request to `OVER_BUDGET_HOLD`."
+
+### 4. Budget Logic Explanation
+"The budget formula is very direct. Remaining Budget equals Initial Budget minus the sum of total amounts from approved procurement requests. In plain English, that means only approved requests reduce the budget. Draft requests, pending requests, rejected requests, and over-budget hold requests do not reduce the available balance."
+
+### 5. Dashboard Explanation
+"The dashboard gives real-time visibility into budget consumption and approval bottlenecks. It shows the initial budget, approved spend, remaining budget, and the number of requests waiting at each stage. This is useful for Admin and Finance because they can see both financial exposure and operational delays in one place."
+
+### 6. Demo Walkthrough
+"For the demo, I use the seed data to show four scenarios. First, `PR-2026-001` has a total of 4,500, so it follows the below-10,000 path. It goes from Department Head approval to the budget check, and then it becomes `APPROVED`. Because it is approved, it contributes to approved spend. Second, `PR-2026-002` has a total of 12,500, so it follows the 10,000-or-more path. It goes to the Department Head, then to the Finance Manager, then to the budget check, and then it becomes `APPROVED`. Third, `PR-2026-003` has a total of 40,000. It passes the approval route, but it would push the remaining budget below zero, so final approval is blocked and the request moves to `OVER_BUDGET_HOLD`. That means it does not reduce the budget. Finally, `PR-2026-004` shows a request still waiting at the `PENDING_HEAD` stage. On the dashboard, I can then show that the Information Technology department started with 50,000, has 17,000 in approved spend from the two approved requests, and has 33,000 remaining."
+
+### 7. Code / SQL Explanation
+"If I look at the SQL, `schema.sql` defines the five core tables that support the design. `departments` stores the department list, `users` stores the people and their roles, `department_budgets` stores the initial budget, `procurement_requests` stores the request header, and `procurement_request_items` stores the detail lines. I store `total_amount` on the request header because it makes routing, reporting, and budget checking much easier in a low-code system. Then `seed.sql` adds sample data so I can demonstrate the below-10,000 path, the Finance Manager path, the over-budget hold case, and a pending request."
+
+### 8. Closing
+"To close, I think this design is strong because it is simple, controlled, and low-code friendly. It is easy to explain, easy to report on, and easy to scale without making the process complicated."
+
+## Quick Answer Lines
+- Why did you use a master-detail design?
+  Because one procurement request can contain many line items. The header-detail structure keeps the request summary separate from the item breakdown.
+
+- Why store `total_amount` on the request header?
+  It makes approval routing, budget checking, and dashboard reporting simpler. The system does not need to recalculate every line item every time.
+
+- When is budget deducted?
+  Budget is deducted only when a request enters `APPROVED`, after all required approvals and the final budget check pass.
+
+- What happens if budget is insufficient?
+  Final approval is blocked. The request moves to `OVER_BUDGET_HOLD` and does not reduce the remaining budget.
+
+- Why is this suitable for a low-code platform?
+  The model is small, the workflow is rule-based, and the reporting logic is straightforward. That makes it easy to build with forms, workflows, and dashboards.
+
 ## Why This Design Works
 This design works because it matches the technical test requirements directly without adding unnecessary complexity. The ERD is simple, the workflow makes the two approval paths obvious, the state machine uses exact system status values, and the budget formula is explicit.
 
